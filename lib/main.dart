@@ -1,159 +1,182 @@
+import 'dart:async';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:sensors/sensors.dart';
 
-void main() => runApp(MyGame());
+void main() => runApp(MG());
 
-class MyGame extends StatefulWidget {
-  MyGameState createState() => MyGameState();
+class MG extends StatefulWidget {
+  MGState createState() => MGState();
 }
 
-class MyGameState extends State<MyGame> with TickerProviderStateMixin {
-  Animation<double> animation;
-  Animation<double> targetAnimation;
-  AnimationController controller;
-  AnimationController targetController;
-  double bulletPosition;
-  double targetPosition;
-  double bulletX = 0;
-  double targetX = 0;
-  bool endGame = false;
-  var rng = new Random();
-  @override
-  void initState() {
-    super.initState();
-    bulletPosition = 1;
-    targetPosition = -1;
-    controller = AnimationController(
-        duration: const Duration(milliseconds: 1000), vsync: this);
-    animation = Tween(begin: 1.0, end: -1.0).animate(controller);
-    controller.forward();
-    animation.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        controller.reset();
-        controller.forward();
-      }
-    });
-    animation.addListener(() {
-      setState(() {
-        bulletPosition = animation.value;
-        // print(animation.value);
-      });
-    });
+class MGState extends State<MG> with TickerProviderStateMixin {
+  Animation<double> bA, tA;
+  AnimationController bC, tC;
+  double bYP = 0, tYP = 0, bXP = 0, tXP = 0, x = 0;
+  int c = 1;
+  int eG = 0;
+  var r = Random();
+  static const Color w = Colors.white;
+  Widget d = Container(
+    height: 30,
+    width: 30,
+    color: w,
+  );
 
-    targetController = AnimationController(
-        duration: const Duration(milliseconds: 10000), vsync: this);
-    targetAnimation = Tween(begin: -1.0, end: 1.0).animate(targetController);
-    targetController.forward();
-    targetAnimation.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        setState(() {
-          endGame = true;
-        });
+  void it() {
+    bC =
+        AnimationController(duration: Duration(milliseconds: 800), vsync: this);
+    accelerometerEvents.listen((AccelerometerEvent e) {
+      if ((-x * 5 - e.x).abs() > 0.1) {
+        if (e.x < -5)
+          s.addValue(1);
+        else if (e.x > 5)
+          s.addValue(-1);
+        else {
+          x = -double.parse(e.x.toStringAsFixed(1)) / 5;
+          s.addValue(x);
+        }
       }
     });
-    targetAnimation.addListener(() {
-      setState(() {
-        targetPosition = targetAnimation.value;
-      });
-    });
+    i();
   }
 
-  double x = 0, y = 0;
-  int count = 0;
+  void i() {
+    bYP = 1;
+    tYP = -1;
+    bA = Tween(begin: 1.0, end: -1.0).animate(bC)
+      ..addStatusListener((s) {
+        if (s == AnimationStatus.completed) {
+          bC.reset();
+          bC.forward();
+        }
+      })
+      ..addListener(() {
+        s.bS.add(bA.value);
+      });
+    bC.forward();
+
+    tC = AnimationController(
+        duration: Duration(milliseconds: 10000 - (c * 200)), vsync: this);
+    tA = Tween(begin: -1.0, end: 1.0).animate(tC)
+      ..addListener(() {
+        setState(() {
+          tYP = tA.value;
+        });
+        if (tA.value == 1) {
+          eG = 2;
+        }
+      });
+    tC.forward();
+  }
 
   @override
-  Widget build(BuildContext context) {
-    if (bulletX > targetX - 0.15 && bulletX < targetX + 0.15) {
-      if (bulletPosition > targetPosition - 0.15 &&
-          bulletPosition < targetPosition) {
+  Widget build(BuildContext ctx) {
+    if (bXP > tXP - 0.15 && bXP < tXP + 0.15) {
+      if (bYP < tYP) {
         setState(() {
-          count++;
-          if (rng.nextBool())
-            targetX = rng.nextDouble();
+          c++;
+          if (r.nextBool())
+            tXP = r.nextDouble();
           else
-            targetX = -rng.nextDouble();
-          targetController.reset();
-          targetController.forward();
-          controller.reset();
-          controller.forward();
+            tXP = -r.nextDouble();
         });
+        bC.reset();
+        i();
       }
     }
-    accelerometerEvents.listen((AccelerometerEvent event) {
-      setState(() {
-        x = -event.x / 5;
-        y = event.y / 5;
-      });
-    });
-    if (animation.value == 1) {
-      bulletX = x;
+
+    if (eG == 1 && bA.value == 1) {
+      bXP = x;
     }
+
     return MaterialApp(
       home: Scaffold(
-        backgroundColor: Colors.green,
-        body: Column(
-          children: <Widget>[
-            Expanded(
-              child: Stack(
+        backgroundColor: Colors.black,
+        body: eG != 1
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      "Score : ${c - 1}",
+                      style: TextStyle(color: w, fontSize: 62),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        it();
+                        eG = 1;
+                        c = 1;
+                        i();
+                      },
+                      child: Icon(
+                        (eG == 2) ? Icons.refresh : Icons.play_arrow,
+                        color: w,
+                        size: 62,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : Column(
                 children: <Widget>[
-                  Container(
-                    child: Align(
-                        alignment: Alignment.topRight,
-                        child: Padding(
-                          padding: const EdgeInsets.all(32.0),
-                          child: Text("$count", style: TextStyle(fontSize: 32)),
-                        )),
-                  ),
-                  Container(
-                    child: Align(
-                      alignment: Alignment(bulletX, bulletPosition),
-                      child: Bullet(),
+                  Expanded(
+                    child: Stack(
+                      children: <Widget>[
+                        Align(
+                          alignment: Alignment(0.8, -0.9),
+                          child: Text("${c - 1}",
+                              style: TextStyle(fontSize: 32, color: w)),
+                        ),
+                        StreamBuilder(
+                            initialData: 1.0,
+                            stream: s.bSG,
+                            builder: (context, s) {
+                              bYP = s.data;
+                              return Align(
+                                  alignment: Alignment(bXP, s.data),
+                                  child: Icon(Icons.arrow_upward, color: w));
+                            }),
+                        Align(alignment: Alignment(tXP, tYP), child: d),
+                      ],
                     ),
                   ),
-                  Container(
-                    child: Align(
-                      alignment: Alignment(targetX, targetPosition),
-                      child: Target(),
-                    ),
-                  ),
+                  StreamBuilder(
+                      initialData: 0.0,
+                      stream: s.sSG,
+                      builder: (ctx, s) {
+                        x = s.data;
+                        return Align(alignment: Alignment(s.data, 1), child: d);
+                      }),
                 ],
               ),
-            ),
-            Align(
-              alignment: Alignment(x, 1),
-              child: Container(
-                height: 30,
-                width: 30,
-                color: Colors.red,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
 }
 
-class Bullet extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 20,
-      width: 10,
-      color: Colors.red,
-    );
+class S {
+  StreamController sSC = StreamController<double>.broadcast(),
+      bSC = StreamController<double>.broadcast();
+
+  Sink get sS => sSC.sink;
+  Sink get bS => bSC.sink;
+
+  Stream<double> get sSG => sSC.stream;
+  Stream<double> get bSG => bSC.stream;
+
+  addValue(double v) {
+    sS.add(v);
+  }
+
+  addBulletValue(double v) {
+    bS.add(v);
+  }
+
+  void dispose() {
+    sSC.close();
+    bSC.close();
   }
 }
 
-class Target extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 30,
-      width: 30,
-      color: Colors.red,
-    );
-  }
-}
+S s = S();
