@@ -85,61 +85,75 @@ class MGState extends State<MG> with TickerProviderStateMixin {
     }
 
     return MaterialApp(
-        home: Scaffold(
-            backgroundColor: Colors.black,
-            body: eG != 1
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          "Score:${c - 1}",
-                          style: TextStyle(color: w, fontSize: 62),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            it();
-                            eG = 1;
-                            c = 1;
-                            i();
-                          },
-                          child: Icon(
-                            (eG == 2) ? Icons.refresh : Icons.play_arrow,
-                            color: w,
-                            size: 62,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : Column(children: <Widget>[
-                    Expanded(
-                        child: Stack(children: <Widget>[
-                      Align(
-                        alignment: Alignment(0.8, -0.9),
-                        child: Text("${c - 1}",
-                            style: TextStyle(fontSize: 32, color: w)),
+      home: Scaffold(
+        backgroundColor: Colors.black,
+        body: eG != 1
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        "Box Shooter",
+                        style: TextStyle(color: w, fontSize: 62),
                       ),
-                      StreamBuilder(
-                          initialData: 1.0,
-                          stream: s.bSG,
-                          builder: (context, s) {
-                            bYP = s.data;
-                            return Align(
-                                alignment: Alignment(bXP, s.data),
-                                child: Icon(Icons.arrow_upward, color: w));
-                          }),
-                      Align(alignment: Alignment(tXP, tYP), child: d)
-                    ])),
+                    ),
+                    Text(
+                      "Score:${c - 1}",
+                      style: TextStyle(color: w, fontSize: 62),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        it();
+                        eG = 1;
+                        c = 1;
+                        i();
+                      },
+                      child: Icon(
+                        (eG == 2) ? Icons.refresh : Icons.play_arrow,
+                        color: w,
+                        size: 62,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : Column(
+                children: <Widget>[
+                  Expanded(
+                      child: Stack(children: <Widget>[
+                    Align(
+                      alignment: Alignment(0.8, -0.9),
+                      child: Text(
+                        "${c - 1}",
+                        style: TextStyle(fontSize: 32, color: w),
+                      ),
+                    ),
                     StreamBuilder(
-                        initialData: 0.0,
-                        stream: s.hSG,
-                        builder: (ctx, s) {
-                          x = s.data;
-                          return Align(
-                              alignment: Alignment(s.data, 1), child: d);
-                        })
-                  ])));
+                      initialData: 1.0,
+                      stream: s.bSG,
+                      builder: (context, s) {
+                        bYP = s.data;
+                        return Align(
+                            alignment: Alignment(bXP, s.data),
+                            child: Icon(Icons.arrow_upward, color: w));
+                      },
+                    ),
+                    Align(alignment: Alignment(tXP, tYP), child: d)
+                  ])),
+                  StreamBuilder(
+                    initialData: 0.0,
+                    stream: s.hSG,
+                    builder: (ctx, s) {
+                      x = s.data;
+                      return Align(alignment: Alignment(s.data, 1), child: d);
+                    },
+                  )
+                ],
+              ),
+      ),
+    );
   }
 }
 
