@@ -17,12 +17,7 @@ class MGState extends State<MG> with TickerProviderStateMixin {
   int eG = 0;
   var r = Random();
   static const Color w = Colors.white;
-  Widget d = Container(
-    height: 30,
-    width: 30,
-    color: w,
-  );
-
+  Widget d = Container(height: 30, width: 30, color: w);
   void it() {
     bC =
         AnimationController(duration: Duration(milliseconds: 800), vsync: this);
@@ -45,8 +40,8 @@ class MGState extends State<MG> with TickerProviderStateMixin {
     bYP = 1;
     tYP = -1;
     bA = Tween(begin: 1.0, end: -1.0).animate(bC)
-      ..addStatusListener((s) {
-        if (s == AnimationStatus.completed) {
+      ..addStatusListener((e) {
+        if (e == AnimationStatus.completed) {
           bC.reset();
           bC.forward();
         }
@@ -55,7 +50,6 @@ class MGState extends State<MG> with TickerProviderStateMixin {
         s.bS.add(bA.value);
       });
     bC.forward();
-
     tC = AnimationController(
         duration: Duration(milliseconds: 10000 - (c * 200)), vsync: this);
     tA = Tween(begin: -1.0, end: 1.0).animate(tC)
@@ -91,78 +85,72 @@ class MGState extends State<MG> with TickerProviderStateMixin {
     }
 
     return MaterialApp(
-      home: Scaffold(
-        backgroundColor: Colors.black,
-        body: eG != 1
-            ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      "Score : ${c - 1}",
-                      style: TextStyle(color: w, fontSize: 62),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        it();
-                        eG = 1;
-                        c = 1;
-                        i();
-                      },
-                      child: Icon(
-                        (eG == 2) ? Icons.refresh : Icons.play_arrow,
-                        color: w,
-                        size: 62,
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            : Column(
-                children: <Widget>[
-                  Expanded(
-                    child: Stack(
+        home: Scaffold(
+            backgroundColor: Colors.black,
+            body: eG != 1
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        Align(
-                          alignment: Alignment(0.8, -0.9),
-                          child: Text("${c - 1}",
-                              style: TextStyle(fontSize: 32, color: w)),
+                        Text(
+                          "Score:${c - 1}",
+                          style: TextStyle(color: w, fontSize: 62),
                         ),
-                        StreamBuilder(
-                            initialData: 1.0,
-                            stream: s.bSG,
-                            builder: (context, s) {
-                              bYP = s.data;
-                              return Align(
-                                  alignment: Alignment(bXP, s.data),
-                                  child: Icon(Icons.arrow_upward, color: w));
-                            }),
-                        Align(alignment: Alignment(tXP, tYP), child: d),
+                        GestureDetector(
+                          onTap: () {
+                            it();
+                            eG = 1;
+                            c = 1;
+                            i();
+                          },
+                          child: Icon(
+                            (eG == 2) ? Icons.refresh : Icons.play_arrow,
+                            color: w,
+                            size: 62,
+                          ),
+                        ),
                       ],
                     ),
-                  ),
-                  StreamBuilder(
-                      initialData: 0.0,
-                      stream: s.sSG,
-                      builder: (ctx, s) {
-                        x = s.data;
-                        return Align(alignment: Alignment(s.data, 1), child: d);
-                      }),
-                ],
-              ),
-      ),
-    );
+                  )
+                : Column(children: <Widget>[
+                    Expanded(
+                        child: Stack(children: <Widget>[
+                      Align(
+                        alignment: Alignment(0.8, -0.9),
+                        child: Text("${c - 1}",
+                            style: TextStyle(fontSize: 32, color: w)),
+                      ),
+                      StreamBuilder(
+                          initialData: 1.0,
+                          stream: s.bSG,
+                          builder: (context, s) {
+                            bYP = s.data;
+                            return Align(
+                                alignment: Alignment(bXP, s.data),
+                                child: Icon(Icons.arrow_upward, color: w));
+                          }),
+                      Align(alignment: Alignment(tXP, tYP), child: d)
+                    ])),
+                    StreamBuilder(
+                        initialData: 0.0,
+                        stream: s.hSG,
+                        builder: (ctx, s) {
+                          x = s.data;
+                          return Align(
+                              alignment: Alignment(s.data, 1), child: d);
+                        })
+                  ])));
   }
 }
 
 class S {
-  StreamController sSC = StreamController<double>.broadcast(),
+  StreamController hSC = StreamController<double>.broadcast(),
       bSC = StreamController<double>.broadcast();
 
-  Sink get sS => sSC.sink;
+  Sink get sS => hSC.sink;
   Sink get bS => bSC.sink;
 
-  Stream<double> get sSG => sSC.stream;
+  Stream<double> get hSG => hSC.stream;
   Stream<double> get bSG => bSC.stream;
 
   addValue(double v) {
@@ -173,8 +161,8 @@ class S {
     bS.add(v);
   }
 
-  void dispose() {
-    sSC.close();
+  voiddispose() {
+    hSC.close();
     bSC.close();
   }
 }
