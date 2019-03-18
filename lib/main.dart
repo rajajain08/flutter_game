@@ -51,7 +51,8 @@ class MGState extends State<MG> with TickerProviderStateMixin {
       });
     bC.forward();
     tC = AnimationController(
-        duration: Duration(milliseconds: 10000 - (c * 200)), vsync: this);
+        duration: Duration(milliseconds: c < 45 ? 10000 - (c * 200) : 1000),
+        vsync: this);
     tA = Tween(begin: -1.0, end: 1.0).animate(tC)
       ..addListener(() {
         setState(() {
