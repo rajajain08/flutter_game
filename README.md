@@ -1,4 +1,4 @@
-# fultter game
+# flutter game
 
 A simple shooting game created without using any game engine.
 This game uses  Accelerometer Events value to change the position of shooter and Tween animation to move target and bullets.This game uses Streams to update bullet and shooter position along with stateful widget to update position of target and for Collision detection.
