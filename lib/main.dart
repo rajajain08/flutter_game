@@ -2,184 +2,244 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:sensors/sensors.dart';
+import 'package:flare_flutter/flare_actor.dart';
 
-void main() => runApp(MG());
+void main() => runApp(MyGame());
 
-class MG extends StatefulWidget {
-  MGState createState() => MGState();
+class MyGame extends StatefulWidget {
+  MyGameState createState() => MyGameState();
 }
 
-class MGState extends State<MG> with TickerProviderStateMixin {
-  Animation<double> bA, tA;
-  AnimationController bC, tC;
-  double bYP = 0, tYP = 0, bXP = 0, tXP = 0, x = 0;
-  int c = 1;
-  int eG = 0;
-  var r = Random();
-  static const Color w = Colors.white;
-  Widget d = Container(height: 30, width: 30, color: w);
-  void it() {
-    bC =
+class MyGameState extends State<MyGame> with TickerProviderStateMixin {
+  Animation<double> bulletAnimation, targetAnimation;
+  AnimationController bulletController, targetController;
+  double bulletYPoint = 0,
+      targetYPoint = 0,
+      bulletXPoint = 0,
+      targetXPoint = 0,
+      x = 0;
+  int count = 1;
+  int endGame = 0;
+  var rand = Random();
+  static const Color white = Colors.white;
+  Widget box = Container(height: 30, width: 30, color: white);
+  void init() {
+    bulletController =
         AnimationController(duration: Duration(milliseconds: 800), vsync: this);
-    accelerometerEvents.listen((AccelerometerEvent e) {
-      if ((-x * 5 - e.x).abs() > 0.1) {
-        if (e.x < -5)
-          s.addValue(1);
-        else if (e.x > 5)
-          s.addValue(-1);
+    accelerometerEvents.listen((AccelerometerEvent event) {
+      if ((-x * 5 - event.x).abs() > 0.1) {
+        if (event.x < -5)
+          stream.addValue(1);
+        else if (event.x > 5)
+          stream.addValue(-1);
         else {
-          x = -double.parse(e.x.toStringAsFixed(1)) / 5;
-          s.addValue(x);
+          x = -double.parse(event.x.toStringAsFixed(1)) / 5;
+          stream.addValue(x);
         }
       }
     });
-    i();
+    initialize();
   }
 
-  void i() {
-    bYP = 1;
-    tYP = -1;
-    bA = Tween(begin: 1.0, end: -1.0).animate(bC)
-      ..addStatusListener((e) {
-        if (e == AnimationStatus.completed) {
-          bC.reset();
-          bC.forward();
+  void initialize() {
+    bulletYPoint = 1;
+    targetYPoint = -1;
+    bulletAnimation = Tween(begin: 1.0, end: -1.0).animate(bulletController)
+      ..addStatusListener((event) {
+        if (event == AnimationStatus.completed) {
+          bulletController.reset();
+          bulletController.forward();
         }
       })
       ..addListener(() {
-        s.bS.add(bA.value);
+        stream.bulletStream.add(bulletAnimation.value);
       });
-    bC.forward();
-    tC = AnimationController(
-        duration: Duration(milliseconds: c < 45 ? 10000 - (c * 200) : 1000),
+    bulletController.forward();
+    targetController = AnimationController(
+        duration:
+            Duration(milliseconds: count < 45 ? 10000 - (count * 200) : 1000),
         vsync: this);
-    tA = Tween(begin: -1.0, end: 1.0).animate(tC)
+    targetAnimation = Tween(begin: -1.0, end: 1.0).animate(targetController)
       ..addListener(() {
         setState(() {
-          tYP = tA.value;
+          targetYPoint = targetAnimation.value;
         });
-        if (tA.value == 1) {
-          eG = 2;
+        if (targetAnimation.value == 1) {
+          endGame = 2;
         }
       });
-    tC.forward();
+    targetController.forward();
   }
 
   @override
-  Widget build(BuildContext ctx) {
-    if (bXP > tXP - 0.15 && bXP < tXP + 0.15) {
-      if (bYP < tYP) {
+  Widget build(BuildContext context) {
+    if (bulletXPoint > targetXPoint - 0.15 &&
+        bulletXPoint < targetXPoint + 0.15) {
+      if (bulletYPoint < targetYPoint) {
         setState(() {
-          c++;
-          if (r.nextBool())
-            tXP = r.nextDouble();
+          count++;
+          if (rand.nextBool())
+            targetXPoint = rand.nextDouble();
           else
-            tXP = -r.nextDouble();
+            targetXPoint = -rand.nextDouble();
         });
-        bC.reset();
-        i();
+        bulletController.reset();
+        initialize();
       }
     }
 
-    if (eG == 1 && bA.value == 1) {
-      bXP = x;
+    if (endGame == 1 && bulletAnimation.value == 1) {
+      bulletXPoint = x;
     }
 
     return MaterialApp(
-      home: Scaffold(
-        backgroundColor: Colors.black,
-        body: eG != 1
-            ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+      home: Stack(children: <Widget>[
+        FlareActor("assets/background.flr",
+            alignment: Alignment.center,
+            fit: BoxFit.fitWidth,
+            animation: "rotate"),
+        Scaffold(
+          backgroundColor: Colors.transparent,
+          body: endGame != 1
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Container(
+                        height: 160,
+                        width: 60,
+                        child: FlareActor("assets/bullet.flr",
+                            // alignment: Alignment(bulletXPoint, stream.data),
+                            fit: BoxFit.fitHeight,
+                            animation: "float"),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "Box Shooter",
+                          style: TextStyle(color: white, fontSize: 62),
+                        ),
+                      ),
+                      Text(
+                        endGame == 2 ? "Score:${count - 1}" : "",
+                        style: TextStyle(color: white, fontSize: 62),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          init();
+                          endGame = 1;
+                          count = 1;
+                          initialize();
+                        },
+                        child: Container(
+                          height: 60,
+                          width: 60,
+                          child: (endGame == 2)
+                              ? Icon(
+                                  Icons.refresh,
+                                  color: white,
+                                  size: 62,
+                                )
+                              : FlareActor("assets/play_button.flr",
+                                  alignment: Alignment.center,
+                                  fit: BoxFit.cover,
+                                  animation: "animate"),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : Column(
                   children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "Box Shooter",
-                        style: TextStyle(color: w, fontSize: 62),
+                    Expanded(
+                        child: Stack(children: <Widget>[
+                      Align(
+                        alignment: Alignment(0.8, -0.9),
+                        child: Text(
+                          "${count - 1}",
+                          style: TextStyle(fontSize: 32, color: white),
+                        ),
                       ),
-                    ),
-                    Text(
-                      "Score:${c - 1}",
-                      style: TextStyle(color: w, fontSize: 62),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        it();
-                        eG = 1;
-                        c = 1;
-                        i();
+                      StreamBuilder(
+                        initialData: 1.0,
+                        stream: stream.bulletStreamGet,
+                        builder: (context, stream) {
+                          bulletYPoint = stream.data;
+                          return Align(
+                              alignment: Alignment(bulletXPoint, stream.data),
+                              child:
+                                  //  Icon(Icons.arrow_upward)
+                                  Container(
+                                width: 15,
+                                child: FlareActor("assets/bullet.flr",
+                                    alignment:
+                                        Alignment(bulletXPoint, stream.data),
+                                    fit: BoxFit.fitWidth,
+                                    animation: "float"),
+                              ));
+                        },
+                      ),
+                      Align(
+                          alignment: Alignment(targetXPoint, targetYPoint),
+                          child: Container(
+                            width: 40,
+                            child: FlareActor("assets/target.flr",
+                                alignment:
+                                    Alignment(targetXPoint, targetYPoint),
+                                fit: BoxFit.fitWidth,
+                                animation: "Preview2"),
+                          ))
+                    ])),
+                    StreamBuilder(
+                      initialData: 0.0,
+                      stream: stream.shooterStreamGet,
+                      builder: (ctx, stream) {
+                        x = stream.data;
+                        return Align(
+                          alignment: Alignment(stream.data, 1),
+                          child: Container(
+                            width: 60,
+                            height: 20,
+                            child: FlareActor("assets/earth.flr",
+                                alignment: Alignment.center,
+                                fit: BoxFit.fitWidth,
+                                animation: "Preview2"),
+                          ),
+                          //box
+                        );
                       },
-                      child: Icon(
-                        (eG == 2) ? Icons.refresh : Icons.play_arrow,
-                        color: w,
-                        size: 62,
-                      ),
-                    ),
+                    )
                   ],
                 ),
-              )
-            : Column(
-                children: <Widget>[
-                  Expanded(
-                      child: Stack(children: <Widget>[
-                    Align(
-                      alignment: Alignment(0.8, -0.9),
-                      child: Text(
-                        "${c - 1}",
-                        style: TextStyle(fontSize: 32, color: w),
-                      ),
-                    ),
-                    StreamBuilder(
-                      initialData: 1.0,
-                      stream: s.bSG,
-                      builder: (context, s) {
-                        bYP = s.data;
-                        return Align(
-                            alignment: Alignment(bXP, s.data),
-                            child: Icon(Icons.arrow_upward, color: w));
-                      },
-                    ),
-                    Align(alignment: Alignment(tXP, tYP), child: d)
-                  ])),
-                  StreamBuilder(
-                    initialData: 0.0,
-                    stream: s.hSG,
-                    builder: (ctx, s) {
-                      x = s.data;
-                      return Align(alignment: Alignment(s.data, 1), child: d);
-                    },
-                  )
-                ],
-              ),
-      ),
+        ),
+      ]),
     );
   }
 }
 
-class S {
-  StreamController hSC = StreamController<double>.broadcast(),
-      bSC = StreamController<double>.broadcast();
+class Streams {
+  StreamController shooterStreamController =
+          StreamController<double>.broadcast(),
+      bulletStreamController = StreamController<double>.broadcast();
 
-  Sink get sS => hSC.sink;
-  Sink get bS => bSC.sink;
+  Sink get shooterStream => shooterStreamController.sink;
+  Sink get bulletStream => bulletStreamController.sink;
 
-  Stream<double> get hSG => hSC.stream;
-  Stream<double> get bSG => bSC.stream;
+  Stream<double> get shooterStreamGet => shooterStreamController.stream;
+  Stream<double> get bulletStreamGet => bulletStreamController.stream;
 
-  addValue(double v) {
-    sS.add(v);
+  addValue(double value) {
+    shooterStream.add(value);
   }
 
-  addBulletValue(double v) {
-    bS.add(v);
+  addBulletValue(double value) {
+    bulletStream.add(value);
   }
 
   voiddispose() {
-    hSC.close();
-    bSC.close();
+    shooterStreamController.close();
+    bulletStreamController.close();
   }
 }
 
-S s = S();
+Streams stream = Streams();
