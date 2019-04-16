@@ -3,7 +3,7 @@
 Freely Movable,Swipable Cards with fully customizable UI and leftSwipe,rightSwipe and onTap call backs.
 
 # Demo
-![Demo](https://github.com/rajajain08/flutter_game/blob/flare_intigration/screenshots/sf1.gif)
+![Demo](https://github.com/rajajain08/flutter_game/blob/flare_intigration/screenshots/sf12.gif)
 ![Demo](https://github.com/rajajain08/flutter_game/blob/flare_intigration/screenshots/shooter_plane-min.gif)
 
 
