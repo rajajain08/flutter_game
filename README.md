@@ -1,25 +1,18 @@
-# flutter game
+# Shooter Game
 
-A simple shooting game created without using any game engine.
-This game uses  Accelerometer Events value to change the position of shooter and Tween animation to move target and bullets.This game uses Streams to update bullet and shooter position along with stateful widget to update position of target and for Collision detection.
+A Simple shooter game created using flutter & flare without using any game engine.
 
-## Abbreviations used in code.
-
-c = counter,
-b = bullet,
-t = target,
-h = shooter,
-A = animation,
-C = controller
-w = white,
-MG = MyGame,
-e = event,
-S , s = stream,
-XP = x-axis Position,
-YP = y-axis Position,
-i = initialize,
-it = init,
+# Demo (Before Flare - After Flare)
+![Demo](https://github.com/rajajain08/flutter_game/blob/flare_intigration/screenshots/sf11.gif)
+![Demo](https://github.com/rajajain08/flutter_game/blob/flare_intigration/screenshots/sf12.gif)
 
 
+##### Without flare  [here](https://github.com/rajajain08/flutter_game/tree/master)
+##### With flare  [here](https://github.com/rajajain08/flutter_game/tree/flare_intigration)
 
+
+### Installation
+```sh
+flutter run
+```
 
