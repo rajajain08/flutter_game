@@ -86,6 +86,7 @@ class MGState extends State<MG> with TickerProviderStateMixin {
     }
 
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         backgroundColor: Colors.black,
         body: eG != 1
